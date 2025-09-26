@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wewith – Quiz Silaturahmi</title>
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#d8f3dc;
+  display:flex;
+  justify-content:center;
+  margin:0;
+}
+.chat-container{
+  max-width:600px;
+  width:100%;
+  background:#f8f9fa;
+  padding:20px;
+  box-sizing:border-box;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+#chat { flex:1 1 auto; overflow:auto; padding-right:10px; }
+.bubble{
+  max-width:80%;
+  padding:10px 14px;
+  border-radius:18px;
+  margin:8px 0;
+  line-height:1.4em;
+}
+.bot{
+  background:#d4f1c5;
+  border-top-left-radius:0;
+  align-self:flex-start;
+}
+.user{
+  background:#4cc9f0;
+  color:white;
+  margin-left:auto;
+  border-top-right-radius:0;
+  align-self:flex-end;
+}
+.controls { margin-top:12px; display:flex; gap:8px; }
+input[type="text"]{
+  flex:1;
+  padding:10px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  box-sizing:border-box;
+}
+button{
+  padding:10px 16px;
+  background:#52b788;
+  color:#fff;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+button:hover{ background:#40916c; }
+h3{margin-top:20px; font-size:1.1em; font-weight:bold;}
+.btn{
+  display:inline-block;
+  padding:10px 16px;
+  margin:6px 8px 0 0;
+  background:#4cc9f0;
+  color:#fff;
+  border-radius:8px;
+  text-decoration:none;
+}
+footer{
+  margin-top:18px;
+  font-size:14px;
+  text-align:center;
+}
+</style>
+</head>
+<body>
+<div class="chat-container">
+  <div id="chat"></div>
+
+  <div class="controls">
+    <input id="answer" type="text" placeholder="Ketik jawaban lalu Enter">
+    <button id="sendBtn">Kirim</button>
+  </div>
+
+  <h3>Interaksi & Dukungan</h3>
+  <div>
+    <a class="btn" href="https://preview.mailerlite.io/forms/1752418/163507515120682176/share" target="_blank">Kumpul Yuk</a>
+    <a class="btn" href="https://trakteer.id/wewith/link" target="_blank">Support</a>
+  </div>
+
+  <footer>
+    <p>
+      <a href="#" onclick="openEmail()" style="color:#a77045;text-decoration:none;cursor:pointer">Contact</a>
+      • © Wewith - Silaturahmi Series
+    </p>
+  </footer>
+</div>
+
+<script>
+function openEmail() {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    window.location.href = "mailto:hiimwewith@gmail.com?subject=Silaturahmi Series";
+  } else {
+    window.open("https://mail.google.com/mail/?view=cm&fs=1&to=hiimwewith@gmail.com&su=Silaturahmi Series","_blank");
+  }
+}
+
+const chat = document.getElementById('chat');
+const input = document.getElementById('answer');
+const sendBtn = document.getElementById('sendBtn');
+
+const questions = [
+  { 
+    q: "1. Siapa yang harus ke rumah sakit setiap hari?", 
+    answers: ["dokter","perawat","suster","tenaga medis","tenaga kesehatan","nakes","kesehatan","doktor"], 
+    r: "Dokter atau tenaga medis"
+  },
+  { 
+    q: "2. Satu orang putih menikah dengan satu orang hitam, mereka punya bayi maka giginya warna hitam atau putih?", 
+    answers: ["bayinya belum punya gigi","belum punya gigi","tidak punya gigi","gak punya gigi","ga punya gigi","nggak punya gigi","gak ada gigi","ga ada gigi","tidak ada gigi","belum ada gigi"], 
+    r: "Bayinya belum punya gigi"
+  },
+  { 
+    q: "3. Mengapa harimau makan makanan mentah?", 
+    answers: ["gak bisa masak","tidak masak","tidak bisa masak","ga bisa masak","nggak bisa masak"], 
+    r: "Karena dia nggak bisa masak"
+  },
+  { 
+    q: "4. Ada satu benda, di rumahmu ada, di rumahku ada, tiap rumah ada. Dengan benda tersebut kita bisa melihat tembus tembok, apakah itu?", 
+    answers: ["jendela","jendelanya"], 
+    r: "Jendela"
+  },
+  { 
+    q: "5. Seseorang yang sekarat, apa yang dia lakukan terakhir kalinya?", 
+    answers: ["menghembuskan nafas terakhir","hembuskan nafas terakhir","tarikan nafas terakhir","menghembuskan napas terakhir","hembuskan napas terakhir"], 
+    r: "Menghembuskan nafas terakhir"
+  }
+];
+
+let idx = 0;
+let score = 0;
+
+function addBubble(text, cls='bot'){
+  const div = document.createElement('div');
+  div.className = 'bubble ' + cls;
+  div.textContent = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function askNext(){
+  if(idx < questions.length){
+    addBubble(questions[idx].q, 'bot');
+  } else {
+    showResult();
+  }
+}
+
+function isCorrect(userInput, validAnswers){
+  const norm = userInput.toLowerCase().trim();
+  return validAnswers.some(ans => {
+    const a = ans.toLowerCase();
+    return norm === a || norm.includes(a) || a.includes(norm);
+  });
+}
+
+function handleAnswer(){
+  const val = input.value.trim();
+  if(!val) return;
+  addBubble(val, 'user');
+
+  const current = idx;
+  if(isCorrect(val, questions[current].answers)){
+    score++;
+    setTimeout(()=> addBubble("Benar! " + questions[current].r, 'bot'), 400);
+  } else {
+    setTimeout(()=> addBubble("Salah! Jawaban benar: " + questions[current].r, 'bot'), 400);
+  }
+
+  idx++;
+  input.value = '';
+  setTimeout(askNext, 1200);
+}
+
+// === FINAL RESULT dengan teks asli & menonaktifkan input ===
+function showResult(){
+  setTimeout(()=>{
+    addBubble(`Kamu menjawab ${score} dari ${questions.length} pertanyaan dengan benar.`, 'bot');
+    let msg = "";
+    if(score >= 3){
+      msg = "Selamat kamu sudah dinyatakan sembuh, kita ngopi yuk untuk merayakannya!";
+    } else if(score === 2){
+      msg = "Akan kami observasi lebih lanjut, jangan lupa silaturahmi ya.";
+    } else {
+      msg = "Maaf, kamu harus tetap dirawat, tapi jangan khawatir, kita bisa ngobrol kan? haha.";
+    }
+    setTimeout(()=> addBubble(msg, 'bot'), 1000);
+
+    // 👉 menonaktifkan input dan tombol
+    document.querySelector('.controls').style.display = 'none';
+    input.disabled = true;
+  }, 800);
+}
+
+// === Pembuka dengan analogi RS jiwa ===
+addBubble(
+  "Hai! Kita main quis seru-seruan yuk...\n" +
+  "Anggap ini simulasi Dokter RSJ mengecek kewarasanmu lewat 5 pertanyaan.\n" +
+  "• Jawablah sebaik mungkin.\n" +
+  "• Jika kamu menjawab BENAR minimal 3, kamu dianggap sembuh dan boleh keluar RS.\n" +
+  "• Jika hanya 2 jawaban benar, masih bisa dirundingkan.\n" +
+  "• Namun jika tidak ada yang benar atau kurang dari 2, kamu tetap harus dirawat.\n" +
+  "Siap? Kita mulai tesnya…", 
+  'bot'
+);
+
+setTimeout(askNext, 2000);
+
+sendBtn.addEventListener('click', handleAnswer);
+input.addEventListener('keypress', e => { if(e.key === 'Enter') handleAnswer(); });
+</script>
+</body>
+</html>
